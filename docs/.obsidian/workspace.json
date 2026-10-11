@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "RUST_CONCEPTS.md",
+                "file": "GUIDE.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "RUST_CONCEPTS"
+              "title": "GUIDE"
             }
           }
         ]
@@ -99,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "RUST_CONCEPTS.md",
+                "file": "GUIDE.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "RUST_CONCEPTS.md",
+                "file": "GUIDE.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "RUST_CONCEPTS.md",
+                "file": "GUIDE.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -190,9 +190,9 @@
   },
   "active": "b6a4bea1da609f78",
   "lastOpenFiles": [
+    "RUST_CONCEPTS.md",
     "GUIDE.md",
     "DECISIONS.md",
-    "ARCHITECTURE.md",
-    "RUST_CONCEPTS.md"
+    "ARCHITECTURE.md"
   ]
 }

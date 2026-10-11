@@ -1,1 +1,33 @@
-/target
+.secret
+run.sh
+logs/
+
+# Legacy editor diagnostics may recreate this after the Rust reset
+/target/
+
+# Local credentials and operating-system files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Python environments, caches, and build output
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.pyright/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Frontend dependencies and generated output
+node_modules/
+coverage/
+*.tsbuildinfo
+.vite/

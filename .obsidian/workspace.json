@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/GUIDE.md",
+                "file": "docs/DECISIONS.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "GUIDE"
+              "title": "DECISIONS"
             }
           }
         ]
@@ -99,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/GUIDE.md",
+                "file": "docs/DECISIONS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "docs/GUIDE.md",
+                "file": "docs/DECISIONS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/GUIDE.md",
+                "file": "docs/DECISIONS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -190,18 +190,25 @@
   },
   "active": "38ef2705c4c35db7",
   "lastOpenFiles": [
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/work-products.bin",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/query-cache.bin",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/f5fpzn4hgcmdl1kytlvrdop1h.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/f2xftzrbfjxr5ilvy8l6bwqor.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/f2g3bcbxe6fa8d14cyo5fjftu.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/f26k5zafo8zzvv2vgwufk2zf7.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/extkp34e3wuoc71z2d124d6zc.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/eu3fuhizockkgxn7qbhststhx.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/erxnhr5jgqwlwdzvkggulp19w.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/ep4ljhbtq4ypzr1mmcw4x55yx.o",
-    "target/debug/incremental/emergence-1vb6cao86yov5/s-hn3kpczc6s-08rvxiv-9kraxlfchm2e6m7ndvv50qxcq/en8fo8oe0til1vi1nv2x0d23e.o",
-    "docs/RUST_CONCEPTS.md",
-    "docs/ARCHITECTURE.md"
+    "src/emergence/domain/__pycache__/knowledge.cpython-313.pyc",
+    "src/emergence/domain/knowledge.py",
+    "docs/GUIDE.md",
+    "docs/ARCHITECTURE.md",
+    "tests/world/__pycache__/test_world_models.cpython-313-pytest-9.1.1.pyc",
+    "tests/world/__pycache__",
+    "tests/world/test_world_models.py",
+    "tests/simulation/__pycache__/test_pathfinding.cpython-313-pytest-9.1.1.pyc",
+    "src/emergence/world/__pycache__/models.cpython-313.pyc",
+    "src/emergence/world/__pycache__/__init__.cpython-313.pyc",
+    "src/emergence/world/__pycache__",
+    "src/emergence/simulation/__pycache__/rules.cpython-313.pyc",
+    "src/emergence/simulation/__pycache__/pathfinding.cpython-313.pyc",
+    "docs/ROADMAP.md",
+    "README.md",
+    "docs/DECISIONS.md",
+    "assets/emoji/ATTRIBUTION.md",
+    "assets/emoji/world.png",
+    "assets/emoji/agents.png",
+    "docs/RUST_CONCEPTS.md"
   ]
 }

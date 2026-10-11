@@ -1,107 +1,25 @@
-# Significant decisions
+# Architectural decisions
 
-This is chronological by implemented milestone. It records source/test evidence, not reconstructed meeting history. “Inferred” means rationale is a reading of the code rather than an explicit record; “unknown” means the source does not establish it.
+These decisions guide the reboot. Domain, world, and simulation are implemented through M2; cognition and presentation describe planned direction. Milestone plans may refine details with human approval.
 
-## Milestone 1 — Core domain model
+| Decision | Reason and trade-off |
+| --- | --- |
+| Start fresh with Python and React. | Python makes AI orchestration approachable; React/Canvas supports a clear interactive interface. The archived Rust implementation supplies lessons, not code to port. Rust optimization requires profiling evidence later. |
+| Use Python 3.13+, uv, Ruff, pytest, and strict Pyright. | M1 configures dependency management, formatting/linting, tests, and static checking. pytest-asyncio is added when async tests need it. |
+| Use strict, frozen Pydantic domain models. | Runtime constraints and schema generation share typed definitions. This adds one runtime dependency; frozen fields and immutable collections prevent ordinary mutation. Updates require validated reconstruction, since `model_copy(update=...)` bypasses validation. Generated schemas still need provider-specific compatibility checks in M4. |
+| Keep needs on the same upward scale. | Hunger 0 means starving and 100 full; energy and health also improve upward. M2 adds bounded decay and health damage after hunger/energy reach zero. |
+| Separate capability knowledge from requirements. | The shared catalog defines one-food eating and five-wood/suitable-site shelter costs. Agents initially know every capability even when unaffordable; simulation checks executability against actual state. |
+| Keep Python authoritative. | Simulation owns rules and updates world state. Cognition proposes intentions; server/browser transport and display outcomes. This makes engine tests independent of providers and rendering. |
+| Separate intention text, primitive requests, and accepted tasks. | Future cognition maintains descriptive intention text and selects a typed request. M2 movement tasks retain a destination and progress across ticks; other actions finish in one tick. Composite work and interruptions arrive later. |
+| Route using journey knowledge and validate against actual state. | M2 A* receives observed passable tiles, with radius-3 square visibility. Journey knowledge refreshes locally and preserves earlier observations. Dynamic obstructions cause rerouting or waiting without erasing the destination. Exhaustion/death can fail travel; richer knowledge is deferred. |
+| Allow one agent per tile with atomic movement. | Following, swaps, and closed cycles execute when all required occupants successfully leave. Seeded equal-weight lotteries select competing claims once; dependency pruning removes blocked winners without rerolling or promoting losers. Stationary and dead agents remain obstacles. |
+| Remove depleted sources permanently. | Sources block occupancy and are gathered cardinally from adjacent tiles. The final unit removes the source; underlying terrain determines passability. No automatic regeneration is implemented. |
+| Keep persistence in memory for M2. | Validated immutable world snapshots survive between ticks and old snapshots remain unchanged. Disk save/load and RNG checkpoint restoration need later scope. |
+| Treat interruptions as explicit choices. | A conversation request should not erase an existing goal. Tasks can suspend/resume where appropriate, with concrete policies defined in their milestones. |
+| Resolve required cognition at synchronized barriers. | All required decisions use a consistent snapshot and are applied in deterministic order. This simplifies reproducibility but pauses authoritative progression while a slow request reaches its timeout/fallback. |
+| Promise conditional determinism. | Replay requires initial state, seed, and recorded decisions/fallbacks; it cannot assume identical live LLM output. Seeded conflicts and stable ordering keep execution repeatable. Cosmetic randomness stays independent. |
+| Use Starlette and a versioned WebSocket protocol for the interface. | A small async server can publish state/events and accept controls. React owns UI state; Canvas draws the world using animation frames. API credentials and model calls stay on the backend. |
 
-### Data-only domain values
+The reset archive is `../emergence-rust-archive-20261011-m0/repository-before-reset.tar.gz`. Git history and unrelated local artifacts were preserved. Legacy launchers, secrets, and logs are excluded from the active application design.
 
-**Decision evidenced:** agents, actions, activities, needs, inventory, and world primitives are structs/enums in [`src/domain`](../src/domain); no domain type ticks, calls providers, or renders.
-
-**Rationale:** inferred — this makes shared vocabulary testable and prevents a proposed action from directly changing physical state. Original discussion is unavailable.
-
-### Proposed actions and physical activities differ
-
-**Decision evidenced:** [`Action`](../src/domain/action.rs) and [`Activity`](../src/domain/agent.rs) are different enums, while agent state holds `Option<Activity>`.
-
-**Rationale:** inferred — a command may be rejected whereas an activity records engine-accepted work. The type split and later engine events directly support this reading.
-
-### Agent IDs support ordering
-
-**Decision evidenced:** `AgentId` derives `Ord` ([`agent.rs`](../src/domain/agent.rs)).
-
-**Rationale:** directly required by the `BTreeMap`/`BTreeSet` use in Milestone 2. Why a tuple newtype was selected over another ID representation is unknown.
-
-## Milestone 2 — World and simulation engine
-
-### One authoritative mutable-state owner
-
-**Decision evidenced:** [`Simulation`](../src/simulation/engine.rs) keeps world, agents, pending/running work, sites, and tick count private; callers use submission, ticking, events, and read-only queries.
-
-**Rationale:** inferred — central validation keeps callers, including cognition, from creating inconsistent physical state. Exact prior deliberation is unavailable.
-
-### Ordered standard-library collections
-
-**Decision evidenced:** [`World`](../src/domain/world.rs) and `Simulation` use `BTreeMap`/`BTreeSet`; tick derives pending/running IDs from them.
-
-**Rationale:** inferred — sorted iteration provides reproducible processing without a dependency. Performance tradeoffs or benchmarks are unknown.
-
-### Minimal asymmetric resource policy
-
-**Decision evidenced:** gathering validates at start/completion; building deducts wood and reserves its tile at start ([`engine.rs`](../src/simulation/engine.rs)). Tests cover depleted completion and construction conflict.
-
-**Rationale:** behavior is direct evidence; reasons for omitting a generic gather reservation are not separately documented. Do not read this as a general resource-locking framework.
-
-### Events are outputs, not another state store
-
-**Decision evidenced:** typed [`Event`](../src/simulation/event.rs) values leave submission/ticks, while mutations occur inside the engine.
-
-**Rationale:** inferred — observers can react without owning authoritative state. Event sourcing is not implemented or evidenced.
-
-## Milestone 3 — Cognition and orchestration
-
-### Provider-independent brain contract
-
-**Decision evidenced:** [`Brain`](../src/cognition/brain.rs) consumes `Observation` and returns `AgentDecision`; OpenAI and deterministic brains implement it.
-
-**Rationale:** inferred — deterministic testing and HTTP can remain outside simulation. Comparisons with other provider abstractions are unknown.
-
-### Observation is an owned, limited snapshot
-
-**Decision evidenced:** [`Observation::from_simulation`](../src/cognition/observation.rs) copies focal/radius-limited nearby data.
-
-**Rationale:** inferred — this safely crosses async work without retaining a `Simulation` borrow. Original design discussion is unknown.
-
-### One outstanding monotonic request ID per agent
-
-**Decision evidenced:** scheduler `Slot` has `next_request_id`/`outstanding`, and response handling compares IDs ([`scheduler.rs`](../src/cognition/scheduler.rs)).
-
-**Rationale:** direct evidence of the stale-result mechanism. No generation counter exists; reasons for alternative designs are unknown.
-
-### Tick cooldowns versus elapsed timeout
-
-**Decision evidenced:** `eligible_at_tick` compares with `tick_count`, while Tokio `timeout` wraps `brain.decide` ([`scheduler.rs`](../src/cognition/scheduler.rs)).
-
-**Rationale:** inferred — retry policy follows simulation time while external work needs real-time bounding. No live-provider reliability study is present.
-
-### Strict schema stays at the provider edge
-
-**Decision evidenced:** [`OpenAiBrain`](../src/cognition/openai.rs) strictifies Schemars output, prompts the Responses API, and parses output; `into_action` converts DTO to domain action.
-
-**Rationale:** inferred — provider JSON remains outside the engine. Parser/schema unit tests exist; live API behavior is not established.
-
-## Architecture refactor — Deterministic simulation time and cognition barriers
-
-### Implemented: cognition is resolved at an awaited simulation boundary
-
-**Decision evidenced:** [`CognitionScheduler::resolve_required`](../src/cognition/scheduler.rs) builds all eligible observations, spawns bounded tasks, awaits their handles, and only then returns; [`main.rs`](../src/main.rs) calls `Simulation::tick` after awaiting that method.
-
-**Rationale:** directly established by the refactor's code and scheduler test `barrier_waits_without_advancing_simulation_time`: a delayed decision consumes wall-clock time while the tick count remains unchanged. Inferred design consequence: unlike the replaced detached/background request lifecycle, provider latency cannot make one agent experience extra simulated ticks before its decision is handled.
-
-### Implemented: concurrent requests, deterministic application
-
-**Decision evidenced:** request tasks are launched before handles are awaited; an `Arc<Semaphore>` bounds active calls; task handles and responses are held in `BTreeMap<AgentId, _>` ([`scheduler.rs`](../src/cognition/scheduler.rs)). The `requests_are_concurrent_and_limited` test observes a peak of two active requests with a concurrency limit of two.
-
-**Rationale:** inferred — independent cognition can overlap in real time without letting response arrival order decide action-submission order. The implementation does not claim deterministic external-provider response content, only deterministic ordering of state transitions for supplied results.
-
-### Implemented: compact per-agent request state
-
-**Decision evidenced:** `SlotState` contains `NeedsDecision`, `Outstanding { request_id }`, `Resolved`, and `Cooldown { eligible_at_tick }`; `Slot` stores a single monotonic `next_request_id` ([`scheduler.rs`](../src/cognition/scheduler.rs)). No response channel, retained background-task collection, or generation counter appears in the scheduler.
-
-**Rationale:** direct evidence of the current simplified mechanism. A response is accepted only for the matching outstanding request and a currently eligible agent. Whether future cancellation or more elaborate stale-result policies require additional state is deferred.
-
-### Implemented: separate simulation and elapsed-time policies
-
-**Decision evidenced:** cooldown promotion compares `eligible_at_tick` with `Simulation::tick_count`, while `tokio::time::timeout` wraps `brain.decide` ([`scheduler.rs`](../src/cognition/scheduler.rs)).
-
-**Rationale:** inferred — retry eligibility belongs to repeatable world time; external I/O needs a real-duration bound. The documented tradeoff is explicit in implementation behavior: the slowest outstanding request can stall real-time loop progress at a barrier. No adaptive timeout, cancellation, or throughput policy is implemented.
+New entries should record decisions that change how the system behaves or can be extended. Routine file moves and milestone completion belong in [the roadmap](ROADMAP.md), not a growing historical narrative here.

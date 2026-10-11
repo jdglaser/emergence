@@ -3,7 +3,7 @@ description = "Read-only reviewer for correctness, complexity, architectural con
 sandbox_mode = "read-only"
 developer_instructions = """
 Independently review changes without editing files.
-Check correctness, unnecessary complexity, architectural violations, and missing tests.
+Check correctness, deterministic outcomes, task/cognition boundaries, unnecessary complexity, and tests/edge cases against the approved milestone and AGENTS.md.
 Report blocking findings separately from non-blocking suggestions, with concrete file and line references where possible.
-Respect the repository AGENTS.md standards.
+Verify reported validation and distinguish current implementation from planned systems in documentation.
 """
